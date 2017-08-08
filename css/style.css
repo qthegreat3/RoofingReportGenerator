@@ -46,18 +46,18 @@
     box-shadow: 0 5px 50px #333}
 */
 
-#imageTemp { 
+.imageTemp { 
 	position: absolute; 
 	top: 1px; 
 	left: 1px;
 	z-index:20;
 }
 
-#container{
+.container{
     position:relative; 
 }
 
-#gameCanvas{
+.gameCanvas{
 
     position:relative;
     z-index:1;

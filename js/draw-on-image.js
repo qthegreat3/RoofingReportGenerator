@@ -5,7 +5,10 @@
 // Keep everything in anonymous function, called on window load.
 if(window.addEventListener) {
 window.addEventListener('load', function () {
-  var canvasOverlayList, canvasOverlayContextList, listOfCanvases, canvasContextList;
+  var canvasOverlayList = [];
+  var canvasOverlayContextList= []; 
+  var listOfCanvases = []; 
+  var canvasContextList = [];
 
   // The active tool instance.
   var tool;
@@ -13,7 +16,7 @@ window.addEventListener('load', function () {
 
   function init () 
   {
-    // Find the canvas element.
+    // Find the canvas elements.
     listOfCanvases = document.getElementsByClassName('gameCanvas');
     if (!listOfCanvases) {
       alert('Error: I cannot find any canvas elements!');
@@ -43,7 +46,7 @@ window.addEventListener('load', function () {
 		
 		// Add the temporary canvas.
 		 //create temporary canvas
-		 var container = listOfCanvases[canvasIndex].parentNode;
+		var container = listOfCanvases[canvasIndex].parentNode;
 		var canvas = document.createElement('canvas');
 		
 		if (!canvas) {
@@ -63,9 +66,11 @@ window.addEventListener('load', function () {
 		
 		var context = canvas.getContext('2d');
 		
+		canvas.id = canvasIndex;
 		//add temporary canvas to list of temporary canvases
 		canvasOverlayList.push(canvas);
 		//add temporary canvas context to list of temporary canvas contexts
+		context.id = canvasIndex;
 		canvasOverlayContextList.push(context);
 	}
 	
@@ -112,8 +117,10 @@ window.addEventListener('load', function () {
   // This function draws the #imageTemp canvas on top of #imageView, after which 
   // #imageTemp is cleared. This function is called each time when the user 
   // completes a drawing operation.
-  function img_update () {
+  function img_update (canvasId) {
+		var contexto = canvasContextList[canvasId];
 		contexto.drawImage(canvas, 0, 0);
+		var context = canvasOverlayContextList[canvasId];
 		context.clearRect(0, 0, canvas.width, canvas.height);
   }
 
@@ -128,6 +135,8 @@ window.addEventListener('load', function () {
     // This is called when you start holding down the mouse button.
     // This starts the pencil drawing.
     this.mousedown = function (ev) {
+		//find correct context
+		var context = canvasOverlayContextList[ev.currentTarget.id];
         context.beginPath();
         context.moveTo(ev._x, ev._y);
         tool.started = true;
@@ -138,6 +147,7 @@ window.addEventListener('load', function () {
     // the mouse button).
     this.mousemove = function (ev) {
       if (tool.started) {
+		var context = canvasOverlayContextList[ev.currentTarget.id];
         context.lineTo(ev._x, ev._y);
         context.stroke();
       }
@@ -147,8 +157,9 @@ window.addEventListener('load', function () {
     this.mouseup = function (ev) {
       if (tool.started) {
         tool.mousemove(ev);
+		var context = canvasOverlayContextList[ev.currentTarget.id];
         tool.started = false;
-        img_update();
+        img_update(ev.currentTarget.id);
       }
     };
   };
