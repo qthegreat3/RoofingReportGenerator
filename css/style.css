@@ -1,0 +1,64 @@
+.contain {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.header-image {
+  float: left;
+}
+
+.header-section {
+  float: right;
+}
+
+#header {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.body-section {
+  clear: left;
+}
+
+.title-header {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.image-container img {
+  max-width: 480px;
+  max-height: 300px;
+  position:absolute;z-index:1;
+  border: 1px solid #000;
+}
+
+.img{position:absolute;z-index:1;}
+
+/*#container{
+    display:inline-block;
+    width:480px; 
+    height:320px;
+    margin: 0 auto; 
+    background: gray; 
+    position:relative; 
+    border:5px solid black; 
+    border-radius: 10px; 
+    box-shadow: 0 5px 50px #333}
+*/
+
+#imageTemp { 
+	position: absolute; 
+	top: 1px; 
+	left: 1px;
+	z-index:20;
+}
+
+#container{
+    position:relative; 
+}
+
+#gameCanvas{
+
+    position:relative;
+    z-index:1;
+}
