@@ -54,7 +54,27 @@ window.addEventListener('load', function () {
 		  return;
 		}
 	
+		//size canvas to size of sibling image
+		var img;
+		
+		if(listOfCanvases[canvasIndex].previousElementSibling.nodeName == 'IMG')
+		{
+			img = listOfCanvases[canvasIndex].previousElementSibling;
+		}
+		else if (listOfCanvases[canvasIndex].nextElementSibling.nodeName == 'IMG')
+		{
+			img = listOfCanvases[canvasIndex].nextElementSibling;
+		}
+		else
+		{
+			alert('Error: No Image Found!');
+		}
+	
+		listOfCanvases[canvasIndex].width = img.width;
+		listOfCanvases[canvasIndex].height = img.height;
+	
 		canvas.className += ' imageTemp';
+		
 		canvas.width  = listOfCanvases[canvasIndex].width;
 		canvas.height = listOfCanvases[canvasIndex].height;
 		container.appendChild(canvas);
