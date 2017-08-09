@@ -118,6 +118,7 @@ window.addEventListener('load', function () {
   // #imageTemp is cleared. This function is called each time when the user 
   // completes a drawing operation.
   function img_update (canvasId) {
+		var canvas = canvasOverlayList[canvasId];
 		var contexto = canvasContextList[canvasId];
 		contexto.drawImage(canvas, 0, 0);
 		var context = canvasOverlayContextList[canvasId];
@@ -185,6 +186,8 @@ window.addEventListener('load', function () {
           w = Math.abs(ev._x - tool.x0),
           h = Math.abs(ev._y - tool.y0);
 
+	  var context = canvasOverlayContextList[ev.currentTarget.id];
+	  var canvas = canvasOverlayList[ev.currentTarget.id];
       context.clearRect(0, 0, canvas.width, canvas.height);
 
       if (!w || !h) {
@@ -198,7 +201,7 @@ window.addEventListener('load', function () {
       if (tool.started) {
         tool.mousemove(ev);
         tool.started = false;
-        img_update();
+        img_update(ev.currentTarget.id);
       }
     };
   };
@@ -218,7 +221,8 @@ window.addEventListener('load', function () {
       if (!tool.started) {
         return;
       }
-
+	  var context = canvasOverlayContextList[ev.currentTarget.id];
+	  var canvas = canvasOverlayList[ev.currentTarget.id];
       context.clearRect(0, 0, canvas.width, canvas.height);
 
       context.beginPath();
@@ -232,7 +236,7 @@ window.addEventListener('load', function () {
       if (tool.started) {
         tool.mousemove(ev);
         tool.started = false;
-        img_update();
+        img_update(ev.currentTarget.id);
       }
     };
   };
