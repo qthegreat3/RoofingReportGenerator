@@ -5,33 +5,32 @@
 // Keep everything in anonymous function, called on window load.
 if(window.addEventListener) {
 window.addEventListener('load', function () {
-  var canvasOverlayList = [];
-  var canvasOverlayContextList= []; 
+  var tempCanvasList = [];
+  var tempCanvasContextList= []; 
   var listOfCanvases = []; 
   var canvasContextList = [];
 
   // The active tool instance.
   var tool;
-  var tool_default = 'line';
+  var tool_default = 'rect';
 
   function init () 
   {
     // Find the canvas elements.
-    listOfCanvases = document.getElementsByClassName('gameCanvas');
+    listOfCanvases = document.getElementsByClassName('imageCanvas');
     if (!listOfCanvases) {
       alert('Error: I cannot find any canvas elements!');
       return;
     }
 
-	var canvasIndex;
-	for (canvasIndex = 0; canvasIndex < listOfCanvases.length; canvasIndex++)
+	for (var canvasIndex = 0; canvasIndex < listOfCanvases.length; canvasIndex++)
 	{		
 		if (!listOfCanvases[canvasIndex].getContext) {
 		  alert('Error: no canvas.getContext!');
 		  return;
 		}
 
-		//Give each canvas an id so it can be found again on an event handler
+		//Give each canvas an id so it can be found again in an event handler
 		listOfCanvases[canvasIndex].id = canvasIndex;
 		
 		// Get the 2D canvas context.
@@ -40,58 +39,49 @@ window.addEventListener('load', function () {
 		  alert('Error: failed to getContext!');
 		  return;
 		}
+		
+		//Give each context an id so it can be found again in an event handler
 		contexto.id = canvasIndex;
+		
 		//Add 2d canvas context to list of canvas contexts
 		canvasContextList.push(contexto);
-		
-		// Add the temporary canvas.
-		 //create temporary canvas
+				
+		//create temporary canvas
 		var container = listOfCanvases[canvasIndex].parentNode;
-		var canvas = document.createElement('canvas');
+		var tempCanvas = document.createElement('canvas');
 		
-		if (!canvas) {
+		if (!tempCanvas) {
 		  alert('Error: I cannot create a new canvas element!');
 		  return;
 		}
 	
 		//size canvas to size of sibling image
-		var img;
-		
-		if(listOfCanvases[canvasIndex].previousElementSibling.nodeName == 'IMG')
-		{
-			img = listOfCanvases[canvasIndex].previousElementSibling;
-		}
-		else if (listOfCanvases[canvasIndex].nextElementSibling.nodeName == 'IMG')
-		{
-			img = listOfCanvases[canvasIndex].nextElementSibling;
-		}
-		else
-		{
-			alert('Error: No Image Found!');
-		}
+		size_canvas_to_sibling_image(listOfCanvases[canvasIndex]);
 	
-		listOfCanvases[canvasIndex].width = img.width;
-		listOfCanvases[canvasIndex].height = img.height;
-	
-		canvas.className += ' imageTemp';
+		tempCanvas.className += ' imageTemp';
 		
-		canvas.width  = listOfCanvases[canvasIndex].width;
-		canvas.height = listOfCanvases[canvasIndex].height;
-		container.appendChild(canvas);
+		tempCanvas.width  = listOfCanvases[canvasIndex].width;
+		tempCanvas.height = listOfCanvases[canvasIndex].height;
+		container.appendChild(tempCanvas);
 
 		// Attach the mousedown, mousemove and mouseup event listeners.
-		canvas.addEventListener('mousedown', ev_canvas, false);
-		canvas.addEventListener('mousemove', ev_canvas, false);
-		canvas.addEventListener('mouseup',   ev_canvas, false);
+		tempCanvas.addEventListener('mousedown', ev_canvas, false);
+		tempCanvas.addEventListener('mousemove', ev_canvas, false);
+		tempCanvas.addEventListener('mouseup',   ev_canvas, false);
 		
-		var context = canvas.getContext('2d');
 		
-		canvas.id = canvasIndex;
+		//Give temporary canvas an id so it can be found again in an event handler
+		tempCanvas.id = canvasIndex;
+		
 		//add temporary canvas to list of temporary canvases
-		canvasOverlayList.push(canvas);
+		tempCanvasList.push(tempCanvas);
+
+		//Give temporary canvas context an id so it can be found again in an event handler
+		var tempContext = tempCanvas.getContext('2d');
+		tempContext.id = canvasIndex;
+		
 		//add temporary canvas context to list of temporary canvas contexts
-		context.id = canvasIndex;
-		canvasOverlayContextList.push(context);
+		tempCanvasContextList.push(tempContext);
 	}
 	
 	// Get the tool select input.
@@ -109,6 +99,27 @@ window.addEventListener('load', function () {
 	}
   }
 
+  function size_canvas_to_sibling_image(canvas) {
+	
+  		var img;
+		
+		if(canvas.previousElementSibling.nodeName == 'IMG')
+		{
+			img = canvas.previousElementSibling;
+		}
+		else if (canvas.nextElementSibling.nodeName == 'IMG')
+		{
+			img = listOfCanvases[canvasIndex].nextElementSibling;
+		}
+		else
+		{
+			alert('Error: No Image Found!');
+		}
+	
+		canvas.width = img.width;
+		canvas.height = img.height;
+  }
+  
   // The general-purpose event handler. This function just determines the mouse 
   // position relative to the canvas element.
   function ev_canvas (ev) {
@@ -138,10 +149,10 @@ window.addEventListener('load', function () {
   // #imageTemp is cleared. This function is called each time when the user 
   // completes a drawing operation.
   function img_update (canvasId) {
-		var canvas = canvasOverlayList[canvasId];
+		var canvas = tempCanvasList[canvasId];
 		var contexto = canvasContextList[canvasId];
 		contexto.drawImage(canvas, 0, 0);
-		var context = canvasOverlayContextList[canvasId];
+		var context = tempCanvasContextList[canvasId];
 		context.clearRect(0, 0, canvas.width, canvas.height);
   }
 
@@ -157,7 +168,7 @@ window.addEventListener('load', function () {
     // This starts the pencil drawing.
     this.mousedown = function (ev) {
 		//find correct context
-		var context = canvasOverlayContextList[ev.currentTarget.id];
+		var context = tempCanvasContextList[ev.currentTarget.id];
         context.beginPath();
         context.moveTo(ev._x, ev._y);
         tool.started = true;
@@ -168,7 +179,7 @@ window.addEventListener('load', function () {
     // the mouse button).
     this.mousemove = function (ev) {
       if (tool.started) {
-		var context = canvasOverlayContextList[ev.currentTarget.id];
+		var context = tempCanvasContextList[ev.currentTarget.id];
         context.lineTo(ev._x, ev._y);
         context.stroke();
       }
@@ -178,7 +189,7 @@ window.addEventListener('load', function () {
     this.mouseup = function (ev) {
       if (tool.started) {
         tool.mousemove(ev);
-		var context = canvasOverlayContextList[ev.currentTarget.id];
+		var context = tempCanvasContextList[ev.currentTarget.id];
         tool.started = false;
         img_update(ev.currentTarget.id);
       }
@@ -206,8 +217,8 @@ window.addEventListener('load', function () {
           w = Math.abs(ev._x - tool.x0),
           h = Math.abs(ev._y - tool.y0);
 
-	  var context = canvasOverlayContextList[ev.currentTarget.id];
-	  var canvas = canvasOverlayList[ev.currentTarget.id];
+	  var context = tempCanvasContextList[ev.currentTarget.id];
+	  var canvas = tempCanvasList[ev.currentTarget.id];
       context.clearRect(0, 0, canvas.width, canvas.height);
 
       if (!w || !h) {
@@ -241,8 +252,8 @@ window.addEventListener('load', function () {
       if (!tool.started) {
         return;
       }
-	  var context = canvasOverlayContextList[ev.currentTarget.id];
-	  var canvas = canvasOverlayList[ev.currentTarget.id];
+	  var context = tempCanvasContextList[ev.currentTarget.id];
+	  var canvas = tempCanvasList[ev.currentTarget.id];
       context.clearRect(0, 0, canvas.width, canvas.height);
 
       context.beginPath();

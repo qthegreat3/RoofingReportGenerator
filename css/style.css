@@ -45,6 +45,10 @@
     border-radius: 10px; 
     box-shadow: 0 5px 50px #333}
 */
+.full-width{
+	width: 100%;
+	word-break: break-word;
+}
 
 .imageTemp { 
 	position: absolute; 
@@ -57,7 +61,7 @@
     position:relative; 
 }
 
-.gameCanvas{
+.imageCanvas{
 
     position:relative;
     z-index:1;
